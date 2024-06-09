@@ -50,10 +50,4 @@ public class UserController {
 		}
 		return ResponseEntity.ok(role);
 	}
-	
-	@GetMapping("/allUsers/")
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
-    }
 }

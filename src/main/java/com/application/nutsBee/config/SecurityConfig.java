@@ -39,8 +39,6 @@ public class SecurityConfig {
 			.disable()
 			.authorizeHttpRequests()
 			.requestMatchers(AppConstants.PUBLIC_URLS).permitAll()
-			.requestMatchers(AppConstants.USER_URLS).permitAll()
-			.requestMatchers(AppConstants.ADMIN_URLS).hasAuthority("ADMIN")
 			.anyRequest()
 			.authenticated()
 			.and()
