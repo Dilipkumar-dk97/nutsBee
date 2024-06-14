@@ -12,7 +12,7 @@ public class AppConstants {
 	public static final Long ADMIN_ID = 101L;
 	public static final Long USER_ID = 102L;
 	public static final int JWT_TOKEN_VALIDITY = 10;
-	public static final String[] PUBLIC_URLS = {"/api/register/**", "/api/login/**" };
+	public static final String[] PUBLIC_URLS = {"/user/**"};
 	public static final String[] USER_URLS = { "/nutsBee/***" };
 	public static final String[] ADMIN_URLS = { "/nutsBee/admin/***" };
 	

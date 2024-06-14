@@ -12,9 +12,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.application.nutsBee.Entity.Role;
@@ -23,10 +26,11 @@ import com.application.nutsBee.config.JWTUtil;
 import com.application.nutsBee.repository.UserRepository;
 import com.application.nutsBee.service.UserService;
 
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/user")
 public class AuthController {
 
 	@Autowired
@@ -44,7 +48,7 @@ public class AuthController {
 	@Autowired
 	private UserRepository userRepository;
 
-	@PostMapping("/register/user")
+	@PostMapping("/register")
 	public ResponseEntity<Map<String, Object>> registerByCredentials(@Valid @RequestBody User user) throws Exception {
 
 		if (userService.existsByEmail(user.getEmail())) {
@@ -62,7 +66,7 @@ public class AuthController {
 				HttpStatus.CREATED);
 	}
 
-	@PostMapping("/login/user")
+	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> loginByEmailPassword(@Valid @RequestBody User credentials) {
 
 		UsernamePasswordAuthenticationToken authCredentials = new UsernamePasswordAuthenticationToken(
@@ -88,5 +92,23 @@ public class AuthController {
 		}
 		return true;
 	}
+	
+	@PostMapping("/forgotPassword")
+    public ResponseEntity<?> forgotPassword(@RequestBody User user) throws MessagingException {
+        String forgotPasswordMessage = userService.processForgotPassword(user.getEmail());
+        return ResponseEntity.ok(forgotPasswordMessage);
+    }
+
+    @PatchMapping("/resetPassword")
+    public ResponseEntity<?> resetPassword(@RequestBody User userDto) {
+    	String resetPasswordMessage = userService.resetPassword(userDto);
+        return ResponseEntity.ok(resetPasswordMessage);
+    }
+    
+	@GetMapping("/resendOtp")
+	public ResponseEntity<?> resendOtp(@RequestParam String email) throws Exception {
+		String otpMessage = userService.sendOtpEmail(email);
+		return ResponseEntity.ok(otpMessage);
+	} 
 
 }
