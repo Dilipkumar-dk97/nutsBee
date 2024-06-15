@@ -94,20 +94,21 @@ public class AuthController {
 	}
 	
 	@PostMapping("/forgotPassword")
-    public ResponseEntity<?> forgotPassword(@RequestBody User user) throws MessagingException {
-        String forgotPasswordMessage = userService.processForgotPassword(user.getEmail());
+    public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody User user) throws MessagingException {
+		String token = jwtUtil.generateToken(user.getEmail());
+		Map<String, Object> forgotPasswordMessage = userService.processForgotPassword(user.getEmail(),token);
         return ResponseEntity.ok(forgotPasswordMessage);
     }
 
     @PatchMapping("/resetPassword")
-    public ResponseEntity<?> resetPassword(@RequestBody User userDto) {
-    	String resetPasswordMessage = userService.resetPassword(userDto);
+    public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody User userDto) {
+    	Map<String, Object> resetPasswordMessage = userService.resetPassword(userDto);
         return ResponseEntity.ok(resetPasswordMessage);
     }
     
 	@GetMapping("/resendOtp")
-	public ResponseEntity<?> resendOtp(@RequestParam String email) throws Exception {
-		String otpMessage = userService.sendOtpEmail(email);
+	public ResponseEntity<Map<String, Object>> resendOtp(@RequestParam String email) throws Exception {
+		Map<String, Object> otpMessage = userService.sendOtpEmail(email);
 		return ResponseEntity.ok(otpMessage);
 	} 
 

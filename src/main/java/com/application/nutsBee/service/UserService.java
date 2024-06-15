@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Random;
 
@@ -42,8 +44,9 @@ public class UserService
 	                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + email));
 	}
 	
-	public String processForgotPassword(String email) throws MessagingException {
+	public Map<String, Object> processForgotPassword(String email, String token) throws MessagingException {
 		User user = getUserByEmail(email);
+		Map<String, Object> message = new HashMap<>();
 		if (user != null) {
 			String otp = String.format("%06d", new Random().nextInt(999999));
 			user.setOtp(Integer.parseInt(otp));
@@ -52,30 +55,39 @@ public class UserService
 			String htmlBody = generateResetPasswordHtml(otp);
 			emailService.sendEmail(email, subject, htmlBody);
 		} else {
-			return "INVALID CREDENTIALS PLEASE ENTER VALID " + email;
+			message.put("message", "INVALID CREDENTIALS PLEASE ENTER VALID " + email);
+			return message;
 		}
-		return "Your Password Reset Link Sent To Your Mail";
+		message.put("Authorization","Bearer "+ token);
+		message.put("message", "Your Password Reset Link Sent To Your Mail");
+		return message;
 	}
     
-	public String resetPassword(User requestDto) {
+	public Map<String, Object> resetPassword(User requestDto) {
 		User user = getUserByEmail(requestDto.getEmail());
+		Map<String, Object> resetPasswordMessage = new HashMap<>();
 		if (user != null) {
 			// Validate old and new passwords 
 			if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
-				return "NEW PASSWORD CANNOT BE THE SAME AS OLD PASSWORD";
+				resetPasswordMessage.put("message", "NEW PASSWORD CANNOT BE THE SAME AS OLD PASSWORD");
+				return resetPasswordMessage;
 			} 
 			int storedOtp = user.getOtp();
 			if(requestDto.getOtp() == storedOtp) {
 				String encodedPass = passwordEncoder.encode(requestDto.getPassword());
 				user.setPassword(encodedPass);
+				user.setOtp(0);
 			    saveUser(user);
 			}else {
-				return "PLEASE ENTER CORRECT OTP";
+				resetPasswordMessage.put("message", "PLEASE ENTER CORRECT OTP");
+				return resetPasswordMessage;
 			}
 		} else {
-			return "INVALID CREDENTIALS PLEASE ENTER VALID" + requestDto.getEmail();
+			resetPasswordMessage.put("message", "INVALID CREDENTIALS PLEASE ENTER VALID" + requestDto.getEmail());
+			return resetPasswordMessage;
 		}
-		return "Your Password Reset Completed";
+		resetPasswordMessage.put("message", "Your Password Reset Completed");
+		return resetPasswordMessage;
 	}
 	
 	private String generateResetPasswordHtml(String otp) {
@@ -91,16 +103,19 @@ public class UserService
 	}
 	
 
-	public String sendOtpEmail(String email) throws Exception {
+	public Map<String, Object> sendOtpEmail(String email) throws Exception {
     	User user = getUserByEmail(email);
+    	Map<String, Object> otpMessage = new HashMap<>();
         if (user != null) {
         	String otp = String.format("%06d", new Random().nextInt(999999));
 			user.setOtp(Integer.parseInt(otp));
             saveUser(user);
             emailService.sendOtpEmail(email,Integer.parseInt(otp));
-            return "New OTP has been sent to your email";
+            otpMessage.put("message", "New OTP has been sent to your email");
+            return otpMessage;
         } else {
-            return "Invalid email";
+        	otpMessage.put("message", "Invalid email");
+            return otpMessage;
         }
     }
 }
