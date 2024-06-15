@@ -26,10 +26,6 @@ public class RoleService {
 	}
 
 	public List<Role> getRole(Long userId) {
-		Optional<User> user = userRepository.findById(userId);
-		if (user != null) {
-			return user.get().getRoles();
-		}
-		return new ArrayList<>();
+		return roleRepository.findRoleByUserId(userId);
 	}
 }

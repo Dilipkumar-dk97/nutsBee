@@ -13,14 +13,12 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
-
-
     private String itemId;
     private String itemName;
     private double price;
     private int quantity;
+    
+	@JoinColumn(name = "user_id")
+	private Long userId;
 	 
 }

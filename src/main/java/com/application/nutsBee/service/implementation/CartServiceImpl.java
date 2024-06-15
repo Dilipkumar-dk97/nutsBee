@@ -1,5 +1,7 @@
 package com.application.nutsBee.service.implementation;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,21 +22,28 @@ public class CartServiceImpl implements CartService{
 	private CartRepository cartRepository;
 	
 	@Autowired
-	private UserService userService;
-	
-	@Autowired
 	private ProductsServiceImpl productService;
 	
 	@Override
 	public Cart addToCart(Long userId, Long productId) {
 		Cart carts = new Cart();
-		User user = userService.getUserById(userId);
 		Products product = productService.getProductBy(productId);
 		carts.setItemId(product.getProductId());
 		carts.setItemName(product.getProductName());
 		carts.setPrice(product.getPrice());
 		carts.setQuantity(1);
+		carts.setUserId(userId);
 		return cartRepository.save(carts);
+	}
+
+	@Override
+	public List<Cart> getCartItems(Long userId) {
+		return cartRepository.findCartByUserId(userId);
+	}
+
+	@Override
+	public void deleteCartItem(Long cartId) {
+		cartRepository.deleteById(cartId);
 	}
 
 }

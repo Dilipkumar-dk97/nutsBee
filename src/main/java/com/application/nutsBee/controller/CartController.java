@@ -1,7 +1,12 @@
 package com.application.nutsBee.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -24,5 +29,20 @@ public class CartController {
 			return ResponseEntity.notFound().build();
 		}
 		return ResponseEntity.ok(cart);
+	}
+	
+	@GetMapping("/cart")
+	public ResponseEntity<List<Cart>> getCartItems(@RequestParam Long userId) {
+		List<Cart> cart = cartService.getCartItems(userId);
+		if (cart == null) {
+			return ResponseEntity.notFound().build();
+		}
+		return ResponseEntity.ok(cart);
+	}
+	
+	@DeleteMapping("/cart/{cartId}")
+	public ResponseEntity<String> deleteCartItem(@PathVariable Long cartId) {
+		cartService.deleteCartItem(cartId);
+		return ResponseEntity.ok("Deleted SuccessFully");
 	}
 }

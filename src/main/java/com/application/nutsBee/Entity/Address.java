@@ -19,11 +19,10 @@ public class Address {
         private String street;
         private String pincode;
         private String area;
+        private String city;
+        private String state;
 
-        @ManyToOne
-        @JoinColumn(name = "user_id")
-        private User user;
-
-        // getters and setters
+    	@JoinColumn(name = "user_id")
+    	private Long userId;
 
 }

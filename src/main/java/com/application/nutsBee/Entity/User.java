@@ -21,14 +21,16 @@ public class User {
     private String email;
 	
     @OneToMany(targetEntity = Role.class ,cascade = CascadeType.ALL )
-    @JoinColumn(name = "ur_fk", referencedColumnName = "id")
+    @JoinColumn(name = "userId", referencedColumnName = "id")
 	private List<Role> roles;
 	 
     private String roleType;
     
     private int otp;
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL )
+    @OneToMany(targetEntity = Cart.class ,cascade = CascadeType.ALL )
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     private List<Cart> cartItems;
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(targetEntity = Address.class ,cascade = CascadeType.ALL )
+    @JoinColumn(name = "userId", referencedColumnName = "id")
     private List<Address> addresses;
 }
