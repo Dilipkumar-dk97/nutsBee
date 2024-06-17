@@ -30,7 +30,7 @@ public class UserController {
 	@GetMapping("/users")
 	public ResponseEntity<User> getUser(@RequestParam (required = true) String email) {
 		User user = userService.getUserByEmail(email);
-		return new ResponseEntity<User>(user, HttpStatus.FOUND);
+		return new ResponseEntity<User>(user, HttpStatus.OK);
 	}
 	
 	@GetMapping("/users/{userId}")
