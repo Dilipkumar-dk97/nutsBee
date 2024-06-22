@@ -118,4 +118,21 @@ public class UserService
             return otpMessage;
         }
     }
+
+	public User patchUserById(Long userId, Map<String, String> data) {
+		User user = getUserById(userId);
+		updateUser(user, data);
+		return userRepository.save(user);
+	}
+
+	private void updateUser(User user, Map<String, String> data) {
+		
+		data.forEach((key, value) -> {
+            switch (key) {
+                case "phoneNumber":
+                	user.setPhoneNumber(Long.parseLong(value.toString()));
+                    break;
+            }
+        });
+	}
 }

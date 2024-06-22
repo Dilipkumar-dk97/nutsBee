@@ -1,6 +1,7 @@
 package com.application.nutsBee.service.implementation;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,17 @@ public class CartServiceImpl implements CartService{
 	@Override
 	public void deleteCartItem(Long cartId) {
 		cartRepository.deleteById(cartId);
+	}
+
+	@Override
+	public Cart patchCartItem(Long cartId,  Map<String, String> data) {
+		Cart cart = cartRepository.findById(cartId).get();
+		if(data.containsKey("quantity")) {
+			cart.setQuantity(Integer.parseInt(data.get("quantity")));
+			cartRepository.save(cart);
+			return cart;
+		}
+		return cart;
 	}
 
 }

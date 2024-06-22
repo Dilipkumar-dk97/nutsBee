@@ -17,7 +17,7 @@ public class User {
     private Long id;
     private String username;	
     private String password;
-    private int phoneNumber;
+    private Long phoneNumber;
     private String email;
 	
     @OneToMany(targetEntity = Role.class ,cascade = CascadeType.ALL )
