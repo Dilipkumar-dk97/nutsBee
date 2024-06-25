@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,7 +51,7 @@ public class AuthController {
 
 	@PostMapping("/register")
 	public ResponseEntity<Map<String, Object>> registerByCredentials(@Valid @RequestBody User user) throws Exception {
-
+		HttpHeaders responseHeaders = new HttpHeaders();
 		if (userService.existsByEmail(user.getEmail())) {
 			return ResponseEntity.status(HttpStatus.OK)
 					.body(Collections.singletonMap("message", "User already exists"));
@@ -62,13 +63,13 @@ public class AuthController {
 		userDTO.setRoles(role);
 		userService.saveUser(user);
 		String token = jwtUtil.generateToken(userDTO.getEmail());
-		return new ResponseEntity<Map<String, Object>>(Collections.singletonMap("Authorization","Bearer "+ token),
+		return new ResponseEntity<Map<String, Object>>(Collections.singletonMap("Authorization","Bearer "+ token),responseHeaders,
 				HttpStatus.CREATED);
 	}
 
 	@PostMapping("/login")
 	public ResponseEntity<Map<String, Object>> loginByEmailPassword(@Valid @RequestBody User credentials) {
-
+		HttpHeaders responseHeaders = new HttpHeaders();
 		UsernamePasswordAuthenticationToken authCredentials = new UsernamePasswordAuthenticationToken(
 				credentials.getEmail(), credentials.getPassword());
 		try {
@@ -80,8 +81,8 @@ public class AuthController {
 			}
 		}
 		String token = jwtUtil.generateToken(credentials.getEmail());
-		return new ResponseEntity<Map<String, Object>>(Collections.singletonMap("Authorization","Bearer "+ token),
-				HttpStatus.CREATED);
+		return new ResponseEntity<Map<String, Object>>(Collections.singletonMap("Authorization","Bearer "+ token), responseHeaders,
+				HttpStatus.OK);
 	}
 
 	public boolean isValidCredentials(User credentials) {
@@ -95,21 +96,24 @@ public class AuthController {
 	
 	@PostMapping("/forgotPassword")
     public ResponseEntity<Map<String, Object>> forgotPassword(@RequestBody User user) throws MessagingException {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		String token = jwtUtil.generateToken(user.getEmail());
 		Map<String, Object> forgotPasswordMessage = userService.processForgotPassword(user.getEmail(),token);
-        return ResponseEntity.ok(forgotPasswordMessage);
+        return new ResponseEntity<>(forgotPasswordMessage,responseHeaders,HttpStatus.OK);
     }
 
     @PatchMapping("/resetPassword")
     public ResponseEntity<Map<String, Object>> resetPassword(@RequestBody User userDto) {
+    	HttpHeaders responseHeaders = new HttpHeaders();
     	Map<String, Object> resetPasswordMessage = userService.resetPassword(userDto);
-        return ResponseEntity.ok(resetPasswordMessage);
+    	return new ResponseEntity<>(resetPasswordMessage,responseHeaders,HttpStatus.OK);
     }
     
 	@GetMapping("/resendOtp")
 	public ResponseEntity<Map<String, Object>> resendOtp(@RequestParam String email) throws Exception {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		Map<String, Object> otpMessage = userService.sendOtpEmail(email);
-		return ResponseEntity.ok(otpMessage);
+		return new ResponseEntity<>(otpMessage,responseHeaders,HttpStatus.OK);
 	} 
 
 }

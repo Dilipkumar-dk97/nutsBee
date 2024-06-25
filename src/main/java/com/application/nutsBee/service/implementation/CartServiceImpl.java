@@ -1,8 +1,12 @@
 package com.application.nutsBee.service.implementation;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -29,12 +33,24 @@ public class CartServiceImpl implements CartService{
 	public Cart addToCart(Long userId, Long productId) {
 		Cart carts = new Cart();
 		Products product = productService.getProductBy(productId);
-		carts.setItemId(product.getProductId());
-		carts.setItemName(product.getProductName());
-		carts.setPrice(product.getPrice());
-		carts.setQuantity(1);
-		carts.setUserId(userId);
-		return cartRepository.save(carts);
+		List<Cart> cartItems = getCartItems(userId);
+		List<Cart> existingCart = cartItems.stream()
+				.filter(cart -> StringUtils.equals(cart.getItemId(), productId.toString()))
+				.collect(Collectors.toList());
+		if(existingCart.isEmpty()) {
+			carts.setItemId(product.getId().toString());
+			carts.setItemName(product.getProductName());
+			carts.setPrice(product.getPrice());
+			carts.setQuantity(1);
+			carts.setUserId(userId);
+			return cartRepository.save(carts);
+		}else {
+			Cart cart = existingCart.get(0);
+			Map<String, String> data = new HashMap<>();
+			Integer quantity = cart.getQuantity()+1;
+			data.put("quantity", quantity.toString());
+			return patchCartItem(cart.getId(), data);
+		}
 	}
 
 	@Override

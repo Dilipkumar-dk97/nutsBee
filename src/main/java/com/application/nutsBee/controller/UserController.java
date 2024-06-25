@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,34 +32,38 @@ public class UserController {
 	
 	@GetMapping("/users")
 	public ResponseEntity<User> getUser(@RequestParam (required = true) String email) {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		User user = userService.getUserByEmail(email);
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		return new ResponseEntity<>(user,responseHeaders,HttpStatus.OK);
 	}
 	
 	@GetMapping("/users/{userId}")
-	public ResponseEntity<User> getUserById(@PathVariable Long userId) {
+	public ResponseEntity<User> getUserById(@PathVariable Long userId) throws Exception {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		User user = userService.getUserById(userId);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<>(responseHeaders,HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		return new ResponseEntity<>(user,responseHeaders,HttpStatus.OK);
 	}
 	
 	@PatchMapping("/users/{userId}")
-	public ResponseEntity<User> patchUserById(@PathVariable Long userId, @RequestBody Map<String,String> userBody) {
+	public ResponseEntity<User> patchUserById(@PathVariable Long userId, @RequestBody Map<String,String> userBody) throws Exception {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		User user = userService.patchUserById(userId,userBody);
 		if (user == null) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<>(responseHeaders,HttpStatus.NOT_FOUND);
 		}
-		return new ResponseEntity<User>(user, HttpStatus.OK);
+		return new ResponseEntity<>(user,responseHeaders,HttpStatus.OK);
 	}
 	
 	@GetMapping("/users/{userId}/role")
 	public ResponseEntity<List<Role>> getRole(@PathVariable Long userId) {
+		HttpHeaders responseHeaders = new HttpHeaders();
 		List<Role> role = roleService.getRole(userId);
 		if (role == null) {
-			return ResponseEntity.notFound().build();
+			return new ResponseEntity<>(responseHeaders,HttpStatus.NOT_FOUND);
 		}
-		return ResponseEntity.ok(role);
+		return new ResponseEntity<>(role,responseHeaders,HttpStatus.OK);
 	}
 }

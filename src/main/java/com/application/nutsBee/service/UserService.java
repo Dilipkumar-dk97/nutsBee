@@ -30,9 +30,8 @@ public class UserService
         return userRepository.save(user);
     }
 
-    public User getUserById(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found with ID: " + userId));
+    public User getUserById(Long userId) throws Exception{
+        return userRepository.findById(userId).get();
     }
     
     public boolean existsByEmail(String email) {
@@ -119,7 +118,7 @@ public class UserService
         }
     }
 
-	public User patchUserById(Long userId, Map<String, String> data) {
+	public User patchUserById(Long userId, Map<String, String> data) throws Exception {
 		User user = getUserById(userId);
 		updateUser(user, data);
 		return userRepository.save(user);
