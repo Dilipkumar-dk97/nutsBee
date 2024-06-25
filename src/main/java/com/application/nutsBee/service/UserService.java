@@ -27,6 +27,8 @@ public class UserService
 	private PasswordEncoder passwordEncoder;
 
     public User saveUser(User user) {
+    	user.setOtp(0);
+    	user.setPhoneNumber(0L);
         return userRepository.save(user);
     }
 
