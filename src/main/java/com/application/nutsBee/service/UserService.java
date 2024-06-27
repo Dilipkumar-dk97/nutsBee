@@ -1,5 +1,7 @@
 package com.application.nutsBee.service;
+import com.application.nutsBee.Entity.Mail;
 import com.application.nutsBee.Entity.User;
+import com.application.nutsBee.common.Constants;
 import com.application.nutsBee.repository.UserRepository;
 
 import jakarta.mail.MessagingException;
@@ -48,13 +50,14 @@ public class UserService
 	public Map<String, Object> processForgotPassword(String email, String token) throws MessagingException {
 		User user = getUserByEmail(email);
 		Map<String, Object> message = new HashMap<>();
+		Mail mail = new Mail();
+	    Map<String,Object> model  = new HashMap<>();
 		if (user != null) {
 			String otp = String.format("%06d", new Random().nextInt(999999));
 			user.setOtp(Integer.parseInt(otp));
 			saveUser(user);
-			String subject = "Password Reset";
-			String htmlBody = generateResetPasswordHtml(otp);
-			emailService.sendEmail(email, subject, htmlBody);
+			configMailBody(mail, email,model,otp);
+			emailService.sendEmail(mail);
 		} else {
 			message.put("message", "INVALID CREDENTIALS PLEASE ENTER VALID " + email);
 			return message;
@@ -64,6 +67,16 @@ public class UserService
 		return message;
 	}
     
+	private void configMailBody(Mail mail, String email, Map<String, Object> model, String otp) {
+		String resetLink = "http://localhost:8080/reset-password";
+		model.put("resetLink", resetLink);
+		model.put("otp", otp);
+		mail.setModel(model);
+		mail.setSubject(Constants.PASSWORD_RESET_EMAIL_SUBJECT);
+		mail.setMailTemplate(Constants.PASSWORD_RESET_EMAIL_TEMPLATE);
+		mail.setTo(email);
+	}
+
 	public Map<String, Object> resetPassword(User requestDto) {
 		User user = getUserByEmail(requestDto.getEmail());
 		Map<String, Object> resetPasswordMessage = new HashMap<>();
@@ -91,19 +104,6 @@ public class UserService
 		return resetPasswordMessage;
 	}
 	
-	private String generateResetPasswordHtml(String otp) {
-		String resetLink = "http://localhost:8080/reset-password";
-		return "<!DOCTYPE html>" + "<html>" + "<head>" + "<title>Reset Password</title>" + "</head>" + "<body>"
-				+ "<h1>Reset Password</h1>" + "<p>Hi,</p>"
-				+ "<p>You are receiving this email because we received a password reset request for your account.</p>"
-				+ "<p>Please use the following OTP to reset your password: <strong>" + otp + "</strong></p>"
-				+ "<p>To reset your password, click the button below:</p>" + "<p><a href=\"" + resetLink
-				+ "\">Reset Password</a></p>"
-				+ "<p>If you're having trouble clicking the button, copy and paste the URL below into your web browser:</p>"
-				+ "<p>" + resetLink + "</p>" + "<p>Thank you!</p>" + "</body>" + "</html>";
-	}
-	
-
 	public Map<String, Object> sendOtpEmail(String email) throws Exception {
     	User user = getUserByEmail(email);
     	Map<String, Object> otpMessage = new HashMap<>();

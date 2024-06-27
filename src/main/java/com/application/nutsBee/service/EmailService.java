@@ -4,6 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import org.thymeleaf.spring6.SpringTemplateEngine;
+
+import com.application.nutsBee.Entity.Mail;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -13,12 +17,18 @@ public class EmailService {
 
     @Autowired
     private JavaMailSender javaMailSender;
+    
+    @Autowired
+    private SpringTemplateEngine templateEngine;
 
-    public void sendEmail(String to, String subject, String body) throws MessagingException {
+    public void sendEmail(Mail mail) throws MessagingException {
         MimeMessage message = javaMailSender.createMimeMessage();
+        Context context = new Context();
+        context.setVariables(mail.getModel());
+        String body = templateEngine.process(mail.getMailTemplate(), context);
         MimeMessageHelper helper = new MimeMessageHelper(message, true);
-        helper.setTo(to);
-        helper.setSubject(subject);
+        helper.setTo(mail.getTo());
+        helper.setSubject(mail.getSubject());
         helper.setText(body, true);
         javaMailSender.send(message);
     }
