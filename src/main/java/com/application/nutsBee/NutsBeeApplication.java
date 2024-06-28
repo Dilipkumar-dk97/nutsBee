@@ -19,7 +19,7 @@ public class NutsBeeApplication {
         @Override
         public void addCorsMappings(CorsRegistry registry) {
             registry.addMapping("/**")
-                    .allowedOrigins("http://localhost:3000")
+                    .allowedOrigins("http://localhost:3000","https://kumaraguru-11.github.io/SNT_Project")
                     .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS" , "PATCH")
                     .allowedHeaders("Authorization", "Content-Type", "Access-Control-Allow-Origin")
                     .allowCredentials(true)
